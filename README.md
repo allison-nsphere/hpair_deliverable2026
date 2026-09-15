@@ -1,8 +1,118 @@
-# HPAIR Deliverable
+# HPAIR Personal Info Form
 
-Build a **personal information form application** with the following features:
+A responsive, accessible personal information form built with React (Create React App).
+Submissions are delivered by email via EmailJS — there is no database.
+
+**Live demo:** _add your Vercel URL here_
 
 ---
+
+## Features
+
+**Validation**
+- Real-time validation: errors appear on blur and clear the moment a field becomes valid
+- Specific, actionable messages ("Enter a valid email, e.g. name@example.com") rather than generic ones
+- Submit stays disabled until every required field passes
+- One `validateForm` function is the single source of truth for both the inline errors and the submit gate, so the two can never disagree
+
+**Conditional / optional fields**
+- CV / Resume and LinkedIn URL are opt-in toggles that reveal their input only when switched on
+- Turning a toggle off clears its value, so a stale entry can never block submission
+- "How'd you hear about us?" reveals a free-text box when "Other" is selected
+
+**Submission states**
+- Distinct idle / submitting / success / error states
+- A failed send keeps the user on the form with their answers intact — never a false success
+- Success replaces the form with a confirmation screen showing a reference code and a summary of what was sent
+
+**Responsive and accessible**
+- Verified with zero horizontal overflow at 360px and 390px
+- Every input has a real `<label>`; errors are linked with `aria-describedby` and announced with `role="alert"`
+- Toggles are real checkboxes (Space works); radios sit in a `<fieldset>` with a `<legend>`
+- Visible focus rings throughout, and `prefers-reduced-motion` is respected
+- Focus moves to the confirmation heading after submit
+
+**Design**
+- Arching flag-bunting ribbons at the top and bottom, drawn with SVG `textPath` so the flags genuinely follow the curve
+- Baloo 2 / Nunito type pairing
+
+---
+
+## Getting started
+
+```bash
+npm install
+cp .env.example .env    # then fill in your EmailJS values
+npm start
+```
+
+Runs at http://localhost:3000.
+
+> CRA reads `.env` only at startup — restart the dev server after changing it.
+
+---
+
+## Configuration
+
+Three values from https://dashboard.emailjs.com, set in `.env`:
+
+| Variable | Where to find it |
+|---|---|
+| `REACT_APP_EMAILJS_PUBLIC_KEY` | Account → General → Public Key |
+| `REACT_APP_EMAILJS_SERVICE_ID` | Email Services → Service ID |
+| `REACT_APP_EMAILJS_TEMPLATE_ID` | Email Templates → Template ID |
+
+In the EmailJS template, set **To email** to `{{to_email}}` and **Reply-To** to `{{email}}`.
+`.env.example` lists every available template variable.
+
+`REACT_APP_*` values are inlined into the JS bundle at build time and are visible to
+anyone who loads the page. That is expected for the EmailJS *public* key — restrict the
+account with the allowed-domains setting in the EmailJS dashboard. Never put a private key here.
+
+### Deploying
+
+`.env` is gitignored, so set the same three variables in your host's environment settings
+(on Vercel: Project → Settings → Environment Variables), then redeploy. They are needed at
+**build** time, not runtime. Also add your deployed domain to EmailJS's allowed list.
+
+---
+
+## Project structure
+
+```
+src/
+  App.js                        page shell
+  index.css                     all styling (design tokens, responsive, a11y)
+  components/
+    PersonalInfoForm.js         the form: state, submit flow
+    FormField.js                label + error + aria wiring
+    ToggleSwitch.js             opt-in switch for CV / LinkedIn
+    FlagRibbon.js               arching SVG flag bunting
+    Confirmation.js             post-submit screen
+  services/
+    submissionService.js        orchestrates a submit
+    emailService.js             EmailJS transport
+  utils/
+    validation.js               all rules + field config
+```
+
+---
+
+## Known limitations
+
+- **CV files are not attached on EmailJS's free plan.** Attachments require a paid plan, and
+  the free tier's variable-size cap is far below any real CV — sending the file would make
+  those submissions fail outright. `REACT_APP_EMAILJS_ATTACH_CV` defaults to `false`, and the
+  email reports the CV's filename and size instead. On a paid plan, set it to `true` and add a
+  Variable Attachment using `{{cv_base64}}`.
+- **Nothing is stored.** The confirmation email is the only record. To keep a copy, add a BCC
+  address in the EmailJS template settings.
+- **Flag emoji do not render on Windows**, which has no OS support for them. The ribbon cord
+  and layout still display correctly.
+
+---
+
+## Original brief
 
 ## Recommended Features
 
